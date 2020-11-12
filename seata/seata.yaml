@@ -1,0 +1,75 @@
+#该死的1.4.0版本有问题。jdbc的问题
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seata-server
+  namespace: lion
+  labels:
+    k8s-app: seata-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: seata-server
+  template:
+    metadata:
+      labels:
+        k8s-app: seata-server
+    spec:
+      containers:
+        - name: seata-server
+          image: seataio/seata-server:1.4.0
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: "3072Mi"
+              cpu: "1000m"
+            requests:
+              memory: "2048Mi"
+              cpu: "500m"
+          env:
+            - name: SEATA_CONFIG_NAME
+              value: file:/root/seata-config/registry
+          ports:
+            - name: http
+              containerPort: 8091
+              protocol: TCP
+          volumeMounts:
+            - name: seata-config
+              mountPath: /root/seata-config
+      volumes:
+        - name: seata-config
+          configMap:
+            name: seata-server-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: lion
+  name: seata-server-config
+data:
+  registry.conf: |
+    registry {
+      type = "nacos"
+      nacos {
+        application = "seata-server"
+        serverAddr = "nacos-0.nacos-headless.lion.svc.cluster.local:8848,nacos-1.nacos-headless.lion.svc.cluster.local:8848,nacos-2.nacos-headless.lion.svc.cluster.local:8848"
+        group = "SEATA_GROUP"
+        namespace = "8f8691a7-16d5-4e03-92c1-7d01889cbd0a"
+        cluster = "default"
+        username = "nacos"
+        password = "nacos"
+      }
+    }
+
+    config {
+      type = "nacos"
+      nacos {
+        serverAddr = "nacos-0.nacos-headless.lion.svc.cluster.local:8848,nacos-1.nacos-headless.lion.svc.cluster.local:8848,nacos-2.nacos-headless.lion.svc.cluster.local:8848"
+        namespace = "8f8691a7-16d5-4e03-92c1-7d01889cbd0a"
+        group = "SEATA_GROUP"
+        username = "nacos"
+        password = "nacos"
+      }
+    }

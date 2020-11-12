@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lion-oauth2-authorization-server
+  namespace: lion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lion-oauth2-authorization-server
+  template:
+    metadata:
+      name: lion-oauth2-authorization-server
+      labels:
+        app: lion-oauth2-authorization-server
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: authorization-server
+          image: lion/lion-oauth2-authorization-server:1.0.0-SNAPSHOT
+          imagePullPolicy: Always
+          env:
+            - name: SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR
+              value: nacos-0.nacos-headless.lion.svc.cluster.local:8848,nacos-1.nacos-headless.lion.svc.cluster.local:8848,nacos-2.nacos-headless.lion.svc.cluster.local:8848
+            - name: SPRING_CLOUD_NACOS_CONFIG_NAMESPACE
+              value: 62d1f810-a38f-44fc-9466-22b8e70331f6
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health
+            initialDelaySeconds: 120
+            timeoutSeconds: 1
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health
+            initialDelaySeconds: 120
+            timeoutSeconds: 1
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - bash
+                  - c
+                  - curl -X POST http://127.0.0.1:8080/actuator/shutdown
