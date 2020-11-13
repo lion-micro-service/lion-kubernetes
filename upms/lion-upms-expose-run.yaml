@@ -1,38 +1,30 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: lion-gateway-service
-  namespace: lion
-spec:
-  type: ClusterIP
-  ports:
-    - port: 8080
-      name: lion-gateway
-      targetPort: 8080
-  selector:
-    app: lion-gateway
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lion-gateway
+  name: lion-upms-expose-run
   namespace: lion
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: lion-gateway
+      app: lion-upms-expose-run
   template:
     metadata:
-      name: lion-gateway
+      name: lion-upms-expose-run
       labels:
-        app: lion-gateway
+        app: lion-upms-expose-run
     spec:
-      restartPolicy: Always
       containers:
-        - name: lion-gateway
-          image: lion/lion-gateway:1.0.0-SNAPSHOT
+        - name: lion-upms-expose-run
           imagePullPolicy: Always
+          image: lion/lion-upms-expose-run:1.0.0-SNAPSHOT
+          resources:
+            limits:
+              cpu: "2000m"
+              memory: "530Mi"
+            requests:
+              cpu: "1000m"
+              memory: "530Mi"
           env:
             - name: SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR
               value: nacos-0.nacos-headless.lion.svc.cluster.local:8848,nacos-1.nacos-headless.lion.svc.cluster.local:8848,nacos-2.nacos-headless.lion.svc.cluster.local:8848
@@ -62,4 +54,4 @@ spec:
                 command:
                   - bash
                   - c
-                  - "curl -X POST http://127.0.0.1:8080/actuator/shutdown"
+                  - curl -X POST http://127.0.0.1:8080/actuator/shutdown

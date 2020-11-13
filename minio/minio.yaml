@@ -16,6 +16,20 @@ spec:
     app: minio
   type: ClusterIP
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-service
+  namespace: lion
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      name: minio-service
+      targetPort: 9000
+  selector:
+    app: minio
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -37,6 +51,13 @@ spec:
       containers:
         - name: minio
           imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: "300Mi"
+              cpu: "2000m"
+            requests:
+              memory: "300Mi"
+              cpu: "1000m"
           env:
             - name: MINIO_ACCESS_KEY
               value: "minio"

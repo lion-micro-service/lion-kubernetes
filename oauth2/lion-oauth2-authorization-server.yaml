@@ -16,9 +16,16 @@ spec:
     spec:
       restartPolicy: Always
       containers:
-        - name: authorization-server
+        - name: lion-oauth2-authorization-server
           image: lion/lion-oauth2-authorization-server:1.0.0-SNAPSHOT
           imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: "2000m"
+              memory: "530Mi"
+            requests:
+              cpu: "1000m"
+              memory: "530Mi"
           env:
             - name: SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR
               value: nacos-0.nacos-headless.lion.svc.cluster.local:8848,nacos-1.nacos-headless.lion.svc.cluster.local:8848,nacos-2.nacos-headless.lion.svc.cluster.local:8848

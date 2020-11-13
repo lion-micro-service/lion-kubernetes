@@ -28,7 +28,7 @@ spec:
       targetPort: 6379
   clusterIP: None
   selector:
-    app: nacos
+    app: redis
   type: ClusterIP
 ---
 apiVersion: apps/v1

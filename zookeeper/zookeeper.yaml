@@ -75,11 +75,11 @@ spec:
           image: kubernetes-zookeeper:1.0-3.4.10
           resources:
             limits:
-              memory: "768Mi"
+              memory: "512Mi"
               cpu: "1000m"
             requests:
               memory: "512Mi"
-              cpu: "500m"
+              cpu: "1000m"
           ports:
             - containerPort: 2181
               name: client

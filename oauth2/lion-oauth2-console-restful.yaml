@@ -1,23 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: common-console-restful
+  name: lion-oauth2-console-restful
   namespace: lion
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: common-console-restful
+      app: lion-oauth2-console-restful
   template:
     metadata:
-      name: common-console-restful
+      name: lion-oauth2-console-restful
       labels:
-        app: common-console-restful
+        app: lion-oauth2-console-restful
     spec:
       containers:
-        - name: common-console-restful
+        - name: lion-oauth2-console-restful
           imagePullPolicy: Always
-          image: lion/lion-common-console-restful:1.0.0-SNAPSHOT
+          image: lion/lion-oauth2-console-restful:1.0.0-SNAPSHOT
+          resources:
+            limits:
+              cpu: "2000m"
+              memory: "530Mi"
+            requests:
+              cpu: "1000m"
+              memory: "530Mi"
           env:
             - name: SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR
               value: nacos-0.nacos-headless.lion.svc.cluster.local:8848,nacos-1.nacos-headless.lion.svc.cluster.local:8848,nacos-2.nacos-headless.lion.svc.cluster.local:8848
@@ -47,4 +54,4 @@ spec:
                 command:
                   - bash
                   - c
-                  - "curl -X POST http://127.0.0.1:9090/actuator/shutdown"
+                  - curl -X POST http://127.0.0.1:8080/actuator/shutdown

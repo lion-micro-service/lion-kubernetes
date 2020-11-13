@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lion-common-console-restful
+  namespace: lion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lion-common-console-restful
+  template:
+    metadata:
+      name: lion-common-console-restful
+      labels:
+        app: lion-common-console-restful
+    spec:
+      containers:
+        - name: lion-common-console-restful
+          imagePullPolicy: Always
+          image: lion/lion-common-console-restful:1.0.0-SNAPSHOT
+          resources:
+            limits:
+              cpu: "2000m"
+              memory: "530Mi"
+            requests:
+              cpu: "1000m"
+              memory: "530Mi"
+          env:
+            - name: SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR
+              value: nacos-0.nacos-headless.lion.svc.cluster.local:8848,nacos-1.nacos-headless.lion.svc.cluster.local:8848,nacos-2.nacos-headless.lion.svc.cluster.local:8848
+            - name: SPRING_CLOUD_NACOS_CONFIG_NAMESPACE
+              value: 62d1f810-a38f-44fc-9466-22b8e70331f6
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health
+            initialDelaySeconds: 120
+            timeoutSeconds: 1
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health
+            initialDelaySeconds: 120
+            timeoutSeconds: 1
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - bash
+                  - c
+                  - "curl -X POST http://127.0.0.1:8080/actuator/shutdown"
